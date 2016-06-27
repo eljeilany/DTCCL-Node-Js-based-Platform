@@ -1,0 +1,20 @@
+{
+  "name": "dtccl",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Native Object dection And tracking Platform for NodeJs Based on the DTCCL tracking Algorithm",
+  "author": "El Jeilany Sidi Mohamed",
+  "scripts": {
+    "start": "node ./bin/www"
+  },
+  "dependencies": {
+    "body-parser": "~1.13.1",
+    "cookie-parser": "~1.3.5",
+    "debug": "~2.2.0",
+    "ejs": "~2.3.2",
+    "express": "~4.13.0",
+    "mkdirp": "^0.5.1",
+    "morgan": "~1.6.1",
+    "serve-favicon": "~2.3.0"
+  }
+}

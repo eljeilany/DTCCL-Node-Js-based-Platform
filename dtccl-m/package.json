@@ -1,0 +1,16 @@
+{
+  "name": "dtccl-n",
+  "version": "1.0.0",
+  "description": "Native Object dection And tracking library for NodeJs Based on the DTCCL tracking Algorithm",
+  "author": "El Jeilany Sidi Mohamed",
+  "main": "index.js",
+  "scripts": {
+    "install": "node-gyp rebuild"
+  },
+  "license": "MIT",
+  "dependencies": {
+    "bindings": "^1.2.1",
+    "nan": "^1.2.0"
+  },
+  "gypfile": true
+}

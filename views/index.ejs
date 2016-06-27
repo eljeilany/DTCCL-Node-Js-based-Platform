@@ -1,0 +1,380 @@
+<!DOCTYPE html >
+<html >
+  <head>
+    <title><%= title %></title>
+    <link rel='stylesheet' href='/stylesheets/style.css' />
+    <!-- Bootstrap CSS -->
+    <link href="css/bootstrap.min.css" rel="stylesheet">
+    <!-- bootstrap theme -->
+    <link href="css/bootstrap-theme.css" rel="stylesheet">
+    <!--external css-->
+    <!-- font icon -->
+    <link href="css/elegant-icons-style.css" rel="stylesheet" />
+    <link href="css/font-awesome.min.css" rel="stylesheet" />
+
+    <!-- Custom styles -->
+
+  <link href="css/widgets.css" rel="stylesheet">
+    <link href="css/style.css" rel="stylesheet">
+    <link href="css/style-responsive.css" rel="stylesheet" />
+  <link href="css/xcharts.min.css" rel=" stylesheet">
+  <link href="css/jquery-ui-1.10.4.min.css" rel="stylesheet">
+    <script src="/socket.io/socket.io.js"></script>
+
+
+
+  </head>
+  <body>
+    <div id="fb-root"></div>
+<script>(function(d, s, id) {
+  var js, fjs = d.getElementsByTagName(s)[0];
+  if (d.getElementById(id)) return;
+  js = d.createElement(s); js.id = id;
+  js.src = "//connect.facebook.net/en_US/sdk.js#xfbml=1&version=v2.4&appId=1646770925602786";
+  fjs.parentNode.insertBefore(js, fjs);
+}(document, 'script', 'facebook-jssdk'));</script>
+    <!-- container section start -->
+    <section id="container" class="">
+
+      <aside>
+          <div id="sidebar" class="nav-collapse " tabindex="5000" style="overflow: hidden; outline: none;">
+              <!-- sidebar menu start-->
+              <ul class="sidebar-menu">
+                  <li class="active">
+                      <a class="" href="/">
+                          <i class="icon_house_alt"></i>
+                          <span>Home</span>
+                      </a>
+                  </li>
+                  <li>
+                      <a class="" href="/freet">
+                          <span>Free tracking</span>
+                      </a>
+                  </li>
+                  <li>
+                      <a class="" href="/hdiw">
+                          <span>How to use it</span>
+                      </a>
+                  </li>
+                  <li>
+                      <a class="" href="/about">
+                          <span>About</span>
+                      </a>
+                  </li>
+
+              </ul>
+              <!-- sidebar menu end-->
+          </div>
+      </aside>
+
+
+        <!--main content start-->
+        <section id="main-content">
+            <section class="wrapper">
+              <div class="col-lg-9 col-md-12"align="center">
+                <h1 class="center"><b><%= title %></b></h1>
+                <p class="center">Welcome to <%= title %></p>
+              </div>
+
+                <!--overview start-->
+                <div class="row">
+                  <div class="col-lg-9 col-md-12">
+                    <h3 class="page-header"><i class="fa fa fa-bars"></i> Demo of <b>Al-Qatta</b> vision Algorithm</h3>
+                    <ol class="breadcrumb">
+                      <li><i class="fa fa-home"></i><a href="/">Home</a></li>
+                      <li><i class="fa fa-bars"></i>Pages</li>
+                      <li><i class="fa fa-square-o"></i>detection</li>
+                    </ol>
+                  </div>
+                </div>
+
+          <div class="row">
+            <section class="panel col-lg-9 col-md-12">
+              <div id="mainD" class="panel-body text-center"></div>
+              <button type="button" id="dBtn" class=" d1-class btn btn-primary btn-lg btn-block"><span class="icon_lightbulb_alt"></span>Detect</button>
+
+              <div id="sideD"  class="panel-body text-center" >
+
+
+              </div>
+            </section>
+          </div>
+          <div class="row">
+            <section class="panel col-lg-9 col-md-12">
+              <div class="panel panel-primary text-center">
+                <div class="panel-heading text-center " ><b>Leave a Comment</b></div>
+                <div class="fb-comments " data-href="http://dtccl.com" data-numposts="6"></div>
+                </div>
+              </div>
+            </section>
+          </div>
+            </section>
+        </section>
+        <!--main content end-->
+    </section>
+
+
+
+
+
+
+
+<script type="text/javascript" src="//code.jquery.com/jquery-1.11.3.min.js"></script>
+<script type="text/javascript" src ="javascripts/imscale.js"> </script>
+
+    <script>
+      var socket = io();
+      var errorCallback = function(e) {
+        console.log('Reeeejected!', e);
+      };
+      var detec = true;
+      navigator.getUserMedia  = navigator.getUserMedia ||
+                          navigator.webkitGetUserMedia ||
+                          navigator.mozGetUserMedia ||
+                          navigator.msGetUserMedia;
+
+      var video = document.createElement('video');
+      //var config = new {};
+      // config.maxWidth = 240;
+      // config.debug = false;
+      // config.quality = 1.00;
+      var scaleF = 640/320;
+      var imscale = new ImageUploader({
+            maxWidth: 320,
+            quality: 0.95,
+            //timeout: 5000,
+            debug : true
+        });
+      video.autoplay = true;
+      video.clientWidth = 640;
+      video.clientHeight = 480;
+
+      var newDs= {name:'',obj:[]};
+      var packet = {};
+      var dBtn = document.getElementById('dBtn');
+      var sideD = document.getElementById('sideD');
+      var cshow = document.createElement('canvas');
+      var canvas = document.createElement('canvas');
+      var cdet = document.createElement('canvas');
+      var ctx = canvas.getContext('2d');
+      var cstx = cshow.getContext('2d');
+      var cdtx = cdet.getContext('2d');
+      var imToUp ;
+      var localStream= null;
+      var count = 2;
+      var addc = 0;
+      // var document.body.appendChild(cshow);
+      function newim(){
+        if(!localStream){
+          alert("You didn't allow DTCCL to use your webcam!!! \n Please refresh the page and allow DTCCL to use your webcam. \n Or consult the 'How to use it' for more info." );
+        }else{
+        canvas.width = 640;
+        canvas.height = 480;
+        cshow.width = 640;
+        cshow.height = 480;
+        cdet.width = 40;
+        cdet.height = 40;
+        cstx.drawImage(video, 0, 0,640,480);
+
+        document.getElementById('mainD').appendChild(cshow);
+         snap();
+         socket.emit('detect',imToUp);
+         document.getElementById('sideD').innerHTML = '<div class="panel-primary"> <div class="panel-heading  text-center"><b>Please choose object to track<b></div></div>';
+       }
+
+      }
+      function snap() {
+        if (localStream) {
+
+          ctx.drawImage(video, 0, 0,640,480);
+          //ctx.drawImage(window.URL.createObjectURL(localStream),0,0);
+          //var data = canvas.toDataURL("image/png");
+          imToUp = imscale.scaleImage(canvas);
+          //socket.emit('detect',data);
+          //console.log('frame sent');
+
+        }
+      }
+      function newtrack(){
+          snap();
+          packet.data = imToUp;
+          socket.emit('initialize',packet);
+      }
+      socket.on('receive',function(data){
+        snap();
+        console.log(data);
+      })
+      socket.on('disconnect',function(data){
+      console.log("disconnect.................");
+      window.setTimeout(newtrack,1000);
+      })
+      socket.on('reinit',function(data){
+        snap();
+        packet.data = imToUp;
+        socket.emit('initialize',packet);
+      })
+
+      socket.on('detect',function(data){
+        try{
+        var detections = JSON.parse(data);
+        console.log(detections);
+        // console.log(data.indexOf('\n'));
+        // var data2 = data.substring(0, data.indexOf('\n'))
+        //var detctions = JSON.parse(data2);
+        //console.log(detections.name);
+        // if(frame % 5 == 0 ){
+        // //
+        // }imToUp
+        if(detec){
+        socket.emit('detect',imToUp);
+        }
+        cstx.drawImage(canvas, 0, 0, canvas.width, canvas.height);
+        detections.detections.forEach(updateD);
+        //snap();
+        }catch(err){
+          console.log(err);
+        }
+      });
+      socket.on('track',function(data){
+        try{
+          socket.emit('track',imToUp);
+          var detections = JSON.parse(data);
+          console.log(detections);
+          cstx.drawImage(canvas, 0, 0, canvas.width, canvas.height);
+          if(detections.found == "true"){
+            cstx.lineWidth = 2;
+            // cstx.strokeStyle = 'blue';
+            //cstx.arc(scaleF*detections.center.x,scaleF*detections.center.y,15,0,2*Math.PI);
+            cstx.strokeStyle = 'blue';
+            cstx.lineWidth = 2;
+            cstx.strokeRect(scaleF*detections.center.x - 10, scaleF*detections.center.y -10 , 20, 20);
+            cstx.lineWidth = 3;
+            cstx.strokeStyle = 'red';
+            cstx.beginPath();
+            cstx.moveTo(scaleF*detections.points[0].x, scaleF*detections.points[0].y);
+            cstx.lineTo(scaleF*detections.points[1].x, scaleF*detections.points[1].y);
+            cstx.lineTo(scaleF*detections.points[2].x, scaleF*detections.points[2].y);
+            cstx.lineTo(scaleF*detections.points[3].x, scaleF*detections.points[3].y);
+            cstx.lineTo(scaleF*detections.points[0].x, scaleF*detections.points[0].y);
+            cstx.lineWidth = 3;
+            cstx.strokeStyle = 'red';
+            cstx.stroke();
+          }
+          // console.log(data.indexOf('\n'));
+          // var data2 = data.substring(0, data.indexOf('\n'))
+          //var detctions = JSON.parse(data2);
+          //console.log(detections.name);
+          // if(frame % 5 == 0 ){
+          // //
+          // }imToUp
+
+          // cstx.drawImage(canvas, 0, 0, canvas.width, canvas.height);
+          // detections.detections.forEach(updateD);
+          //snap();
+        }catch(err){
+          console.log(err);
+        }
+      })
+      dBtn.addEventListener('click', newim, false);
+      var vgaConstraints = {
+        video: {
+          mandatory: {
+            maxWidth: 640,
+            maxHeight: 480
+          }
+        }
+      };
+      if (navigator.getUserMedia) {
+      navigator.getUserMedia(vgaConstraints, function(stream) {
+        if (window.URL) {
+          video.src = window.URL.createObjectURL(stream);
+        } else {
+          video.src = stream;
+        }
+        localStream = stream;
+        cstx.drawImage(video, 0, 0,640,480);
+        imToUp = imscale.scaleImage(canvas);
+
+      }, errorCallback);
+      } else {
+      video.src = 'somevideo.webm'; // fallback.
+      }
+
+      ////////////******////////////////////
+      function clearDiv(elementID){
+            document.getElementById(elementID).innerHTML = "";
+      }
+      function updateD(obj){
+           try {
+            cstx.lineWidth = 2;
+            cstx.strokeStyle = 'blue';
+            cstx.strokeRect(scaleF*obj.x, scaleF*obj.y, scaleF*obj.width, scaleF*obj.height);
+            cdtx.drawImage(cshow, scaleF*obj.x, scaleF*obj.y, scaleF*obj.width, scaleF*obj.height, 0, 0, 40, 40);
+            //rects = {image: cdet.toDataURL("image/png") }
+            //var im = new Image(60,60);
+            if(addc > 9){
+              sideD.removeChild(sideD.childNodes[1]);
+              addc -=1;
+            }
+            count +=1;
+            var add = count % 5;
+            if(add == 0){
+            sideD.innerHTML += '<div class="text-center" style="width:80px;display: inline-block;"><img class="text-center" src="' + cdet.toDataURL("image/png") + '" alt=""height="80" width="80" ></image>'
+            +'<button type="button" onclick="intialize({name:\''+ obj.name+'\',x:\''+obj.x+'\',y:\''+obj.y+'\',w:\''+obj.width+'\',h:\''+obj.height+'\'})"'
+            +'class="tp-class btn btn btn-danger btn-block ">Track</button>'
+            +'</div>'
+            ;
+            count = 0;
+            addc += 1;
+          }
+            // sideD.innerHTML += '<div class="text-center" style="width:80px;display: inline-block;"><img class="text-center" src="' + cdet.toDataURL("image/png") + '" alt=""height="80" width="80" ></image>'
+            // +'<button type="button" data-name="'+ obj.name+'"data-x="'+obj.x+'"data-y="'+obj.y+'"data-w="'+obj.width+'"data-h="'+obj.height+'"'
+            // +'class="tp-class btn btn-primary btn-lg btn-block "></button>'
+            // +'</div>'
+            // ;
+            //sideD.appendChild(im);
+            //im.src = cdet.toDataURL("image/png");
+            // newDs.obj.push(rects);
+            // console.log(newDs);
+            //document.body.appendChild(canvas);
+          }catch(err){
+            console.log(err);
+          }
+      }
+      function intialize(data){
+        console.log("clicked!!!!!!!!!!!!!!!!!!!!!!!!!!weeeeeeeeeeee!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+        detec = false;
+
+        packet.name = data.name;
+        packet.data = imToUp;
+        packet.x = data.x;
+        packet.y = data.y;
+        packet.width = data.w;
+        packet.height = data.h;
+
+        socket.emit('initialize',packet);
+      }
+      ///////////// jquery
+      $(function(){
+        console.log('ready!!!!!!!!!!!!!!!!!!!!!!!');
+        $('.tp-class').on('click',function(){
+          console.log("clicked!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+          detec = false;
+          var packet = {};
+          packet.name = $(this).attr('data-name');
+          packet.data = imToUp;
+          packet.x = $(this).attr('data-x');
+          packet.y = $(this).attr('data-y');
+          packet.width = $(this).attr('data-w');
+          packet.height = $(this).attr('data-h');
+
+          socket.emit('initialize',packet);
+
+        });
+        $('.d1-class').on('click',function(){
+          console.log("clicked!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+        })
+      })
+    </script>
+  </body>
+</html>

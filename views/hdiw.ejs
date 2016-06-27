@@ -1,0 +1,134 @@
+<!DOCTYPE html >
+<html >
+  <head>
+    <title><%= title %></title>
+    <link rel='stylesheet' href='/stylesheets/style.css' />
+    <!-- Bootstrap CSS -->
+    <link href="css/bootstrap.min.css" rel="stylesheet">
+    <!-- bootstrap theme -->
+    <link href="css/bootstrap-theme.css" rel="stylesheet">
+    <!--external css-->
+    <!-- font icon -->
+    <link href="css/elegant-icons-style.css" rel="stylesheet" />
+    <link href="css/font-awesome.min.css" rel="stylesheet" />
+
+    <!-- Custom styles -->
+
+  <link href="css/widgets.css" rel="stylesheet">
+    <link href="css/style.css" rel="stylesheet">
+    <link href="css/style-responsive.css" rel="stylesheet" />
+  <link href="css/xcharts.min.css" rel=" stylesheet">
+  <link href="css/jquery-ui-1.10.4.min.css" rel="stylesheet">
+    <script src="/socket.io/socket.io.js"></script>
+<style media="screen">
+.img-responsive {
+  margin: 0 auto;
+  display: inline-block;
+}
+</style>
+
+
+  </head>
+  <body>
+
+    <!-- container section start -->
+    <section id="container" class="">
+
+      <aside>
+          <div id="sidebar" class="nav-collapse " tabindex="5000" style="overflow: hidden; outline: none;">
+              <!-- sidebar menu start-->
+              <ul class="sidebar-menu">
+                  <li >
+                      <a class="" href="/">
+                          <i class="icon_house_alt"></i>
+                          <span>Home</span>
+                      </a>
+                  </li>
+                  <li>
+                      <a class="" href="/freet">
+                          <span>Free tracking</span>
+                      </a>
+                  </li>
+                  <li class="active">
+                      <a class="" href="/hdiw">
+                          <span>How does it works</span>
+                      </a>
+                  </li>
+                  <li >
+                      <a class="" href="/about">
+                          <span>About</span>
+                      </a>
+                  </li>
+
+              </ul>
+              <!-- sidebar menu end-->
+          </div>
+      </aside>
+
+
+        <!--main content start-->
+        <section id="main-content">
+            <section class="wrapper">
+              <div class="col-lg-9 col-md-12"align="center">
+                <h1 class="center"><b><%= title %></b></h1>
+                <p class="center">Welcome to <%= title %></p>
+              </div>
+
+                <!--overview start-->
+                <div class="row">
+                  <div class="col-lg-9 col-md-12">
+                    <h3 class="page-header"><i class="fa fa fa-bars"></i> Demo of <b>Al-Qatta</b> vision Algorithm</h3>
+                    <ol class="breadcrumb">
+                      <li><i class="fa fa-home"></i><a href="/">Home</a></li>
+                      <li><i class="fa fa-bars"></i>Pages</li>
+                      <li><i class="fa fa-square-o"></i>more</li>
+                    </ol>
+                  </div>
+                </div>
+
+          <div class="row">
+            <div class="col-lg-9">
+              <section class="panel">
+                                      <header class="panel-heading">
+                                            <h2>How to use it</h2>
+                                        </header>
+                                    <div class="panel-body">
+                                      <div class="panel panel-primary">
+                                        <div class="panel panel-warning">
+                                          <div class="panel-heading text-center"><b>If you are using an IOS device: Iphone, Ipad.</b></div>
+                                          <div class="panel-content">
+                                            <div class="alert alert-block alert-danger fade in text-center">
+                                                <strong>Webrtc and therefore getUserMedia doesn't work on IOS thus far, Sorry. </strong> Check back with a diffrent device.
+                                            </div>
+                                          </div>
+                                        </div>
+
+                                        <div class="panel-heading text-center"><b>If you are using a PC.</b></div>
+                                        <div class="panel-content text-center"><div><h4><b>When you enter the home page you will see the following popup asking you to allow
+                                          DTCCL to use your camera click "allow":<b><h4></div>
+                                          <img class="img-responsive " src="images/allow-pc.png" alt=""></image>
+                                        </div>
+                                        <div class="panel-heading text-center"><b>If you are using an Android phone.</b></div>
+                                        <div class="panel-content text-center"><div><h4><b>When you enter the home page you will see the following popup asking you to allow
+                                          DTCCL to use your camera click "allow":<b><h4></div>
+                                          <img class="img-responsive " src="images/allow-phone.png" alt=""></image>
+                                        </div>
+                                      </div>
+                                      <div class="panel panel-success">
+                                        <div class="panel-heading text-center " ><b> Next </b></div>
+                                        <div class="panel-content text-center"><div><h4><b>Click the blue dectet botton and the algorithm will draw blue rectangles around all the faces in the camera feed.<nav>
+                                          you can chose to track one of these faces by clicking on the red track botton
+                                        </nav><b><h4></div>
+                                          <img class="img-responsive " src="images/select.jpg" alt=""></image>
+                                        </div>
+                                      </div>
+                                      </div>
+                                    </section>
+            </div>
+          </div>
+            </section>
+        </section>
+        <!--main content end-->
+    </section>
+  </body>
+</html>

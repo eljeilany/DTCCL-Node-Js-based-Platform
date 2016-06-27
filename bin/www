@@ -1,0 +1,248 @@
+#!/usr/bin/env node
+
+/**
+ * Module dependencies.
+ */
+
+var app = require('../app');
+var debug = require('debug')('dtccl:server');
+var http = require('http');
+var fs = require('fs');
+var filendir = require('filendir');
+var dtccl = require('../dtccl-m/build/Release/dtccl-n');
+var mkdirp = require('mkdirp');
+var sharp = require('sharp');
+var domain = require('domain');
+var rimraf = require('rimraf');
+var d = domain.create();
+
+d.on('error', function(err) {
+  console.error(err);
+});
+/**
+ * Get port from environment and store in Express.
+ */
+
+var port = normalizePort(process.env.PORT || '80');
+app.set('port', port);
+
+/**
+ * Create HTTP server.
+ */
+
+var server = http.createServer(app);
+var io = require('socket.io')(server);
+var obj = dtccl.createObject(10);
+/**
+ * Listen on provided port, on all network interfaces.
+ */
+
+ function getDateTime() {
+
+     var date = new Date();
+
+     var hour = date.getHours();
+     hour = (hour < 10 ? "0" : "") + hour;
+
+     var min  = date.getMinutes();
+     min = (min < 10 ? "0" : "") + min;
+
+     var sec  = date.getSeconds();
+     sec = (sec < 10 ? "0" : "") + sec;
+
+     var year = date.getFullYear();
+
+     var month = date.getMonth() + 1;
+     month = (month < 10 ? "0" : "") + month;
+
+     var day  = date.getDate();
+     day = (day < 10 ? "0" : "") + day;
+
+     return year + ":" + month + ":" + day + ":" + hour + ":" + min + ":" + sec;
+
+ }
+
+server.listen(port);
+server.on('error', onError);
+server.on('listening', onListening);
+console.log('ready');
+d.run(function() {
+io.on('connection', function(socket){
+  console.log(getDateTime());
+  var init = false;
+  var address = socket.handshake.address;
+
+  var ph = "out/"+address+"/";
+
+  //console.log('IO a user connected: '+address);
+
+  mkdirp(ph, function(err) {
+    if(err){console.log();}
+  });
+
+  socket.on('disconnect', function() {
+      console.log('Got disconnect! :' + getDateTime() );
+      rimraf("out/"+address , function(err){
+        console.log(err);
+      });
+   });
+
+  socket.on('detect',function(data){
+    socket.emit('receive',"null");
+
+    base64Data = data.replace(/^data:image\/(png|webp|jpeg);base64,/,'');
+    var name = "" + (new Date).getTime() / 1000;
+
+    binaryData = new Buffer(base64Data, 'base64');
+    console.log("size : " + binaryData.length);
+    sharp(binaryData)
+
+    .toFormat(sharp.format.png)
+    .toBuffer()
+    .then(function(outputBuffer) {
+      console.log('good!');
+      dtccl.justdetect(obj,outputBuffer,name,function(err,argv){
+        if(err){
+          console.log(err);
+        }
+        console.log('done!');
+        console.log(argv);
+        //var data = ""+ argv;
+        socket.emit('detect',argv);
+      })
+     fs.writeFile(ph +name+".png", outputBuffer.toString('binary'), "binary", function(err) {
+           if(err){
+           console.log(err); // writes out file without error, but it's not a valid image
+          }
+     });
+    });
+
+  });
+  socket.on('initialize',function(arg){
+    init = true;
+    console.log('tracking!!!!!');
+    socket.emit('receive',"null");
+    base64Data = arg.data.replace(/^data:image\/(png|webp|jpeg);base64,/,'');
+    var name = "" + (new Date).getTime() / 1000;
+    var name2 = ph+arg.name+".png";
+    binaryData = new Buffer(base64Data, 'base64');
+    sharp(binaryData)
+    .toFormat(sharp.format.png)
+    .toBuffer()
+    .then(function(outputBuffer) {
+      try{
+      dtccl.initialize(obj,outputBuffer,name,name2,arg.x,arg.y,arg.width,
+        arg.height,function(err,argv){
+        if(err){
+          console.log(err);
+        }
+        console.log('done!');
+        console.log(argv);
+        socket.emit('track',argv);
+        //console.log(argv);
+      })}catch(error){
+        console.log(error);
+        socket.emit('track','{"name": "'+name+'", found: "false"}');
+      };
+
+      fs.writeFile(ph +name+".png", outputBuffer.toString('binary'), "binary", function(err) {
+          if(err){
+            console.log(err);
+          }
+      });
+    });
+  });
+
+  socket.on('track',function(data){
+    if (init){
+      socket.emit('receive',"null");
+      base64Data = data.replace(/^data:image\/(png|webp|jpeg);base64,/,'');
+      var name = "" + (new Date).getTime() / 1000;
+      binaryData = new Buffer(base64Data, 'base64');
+      sharp(binaryData)
+      .toFormat(sharp.format.png)
+      .toBuffer()
+      .then(function(outputBuffer) {
+        try{
+        dtccl.track(obj,outputBuffer,name,function(err,argv){
+          console.log('done!');
+          console.log(argv);
+          socket.emit('track',argv);
+          //console.log(argv);
+        })}catch(err){
+          console.log(err);
+          socket.emit('track','{"name": "'+name+'", found: "false"}');
+        }
+        fs.writeFile(ph +name+".png", outputBuffer.toString('binary'), "binary", function(err) {
+            if(err){
+              console.log(err); // writes out file without error, but it's not a valid image
+            }
+        });
+      });
+    }else{
+      socket.emit('reinit',null);
+    }
+  });
+});
+});
+/**
+ * Normalize a port into a number, string, or false.
+ */
+
+function normalizePort(val) {
+  var port = parseInt(val, 10);
+
+  if (isNaN(port)) {
+    // named pipe
+    return val;
+  }
+
+  if (port >= 0) {
+    // port number
+    return port;
+  }
+
+  return false;
+}
+
+/**
+ * Event listener for HTTP server "error" event.
+ */
+
+function onError(error) {
+  if (error.syscall !== 'listen') {
+    throw error;
+  }
+
+  var bind = typeof port === 'string'
+    ? 'Pipe ' + port
+    : 'Port ' + port;
+
+  // handle specific listen errors with friendly messages
+  switch (error.code) {
+    case 'EACCES':
+      console.error(bind + ' requires elevated privileges');
+      process.exit(1);
+      break;
+    case 'EADDRINUSE':
+      console.error(bind + ' is already in use');
+      process.exit(1);
+      break;
+    default:
+      throw error;
+  }
+}
+
+/**
+ * Event listener for HTTP server "listening" event.
+ */
+
+function onListening() {
+  var addr = server.address();
+  var bind = typeof addr === 'string'
+    ? 'pipe ' + addr
+    : 'port ' + addr.port;
+  debug('Listening on ' + bind);
+}
+
+///*****////
